@@ -1,15 +1,15 @@
 library(tidyverse)
 library(patchwork)
-source("R/plot_coverage.R")
+source("R/coverage_functions.R")
 
 # Load data
-models <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
+MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location_name == "Vermont",
     target == "1 wk ahead inc death",
-    model %in% models
+    model %in% MODELS
   ) %>%
   mutate(value = floor(value))
 
