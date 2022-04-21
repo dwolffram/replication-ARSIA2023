@@ -33,8 +33,7 @@ murphydiag <- function(data, alpha, digits=3) {
     mutate(qs = quantile_score(truth, value, quantile)) %>%
     group_by(model, quantile) %>%
     summarize(mean_qs = mean(qs),
-              label = paste0(unique(model), " (", format(round(mean_qs, digits = digits),
-                                                         scientific = FALSE, nsmall = digits),
+              label = paste0(unique(model), " (", round(mean_qs, digits = digits),
                              ")", collapse = "\n"),
               .groups = "drop")
 
