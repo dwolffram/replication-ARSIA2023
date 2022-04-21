@@ -9,7 +9,11 @@ elementary_quantile_score <- function(y_true, y_pred, theta, alpha){
 
 get_thetas <- function(value, truth, n=1001){
   tmp <- c(value, truth)
-  thetas <- seq(from = min(tmp) - 0.1, to = max(tmp) + 0.1, length.out = n)
+  max_val <- max(tmp)
+  min_val <- min(tmp)
+  thetas <- seq(from = min_val - 0.1 * (max_val - min_val),
+                to = max_val + 0.1 * (max_val - min_val),
+                length.out = n)
   return(thetas)
 }
 

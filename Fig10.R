@@ -102,13 +102,15 @@ recal_and_bands <- filter(my_pred, quantile ==  QUANTILE) %>%
 
 all_scores <- recal_and_bands %>%
   group_by(model) %>%
-  distinct(across(score:pval_ucond))
+  distinct(across(score:pval_ucond)) %>%
+  mutate(across(.cols=score:pval_ucond,
+                .fns = function(x) format(round(x, digits=DIGITS), nsmall=DIGITS)))
 
-scores <- mutate(alls_scores, label = paste0(c("\nuMCB ","cMCB ","DSC ","UNC "),
-                        format(c(umcb, cmcb, dsc, unc), nsmall=DIGITS),
-                        collapse = "\n"))
-
-qs_scores <- select(all_scores, score)
+scores <- mutate(all_scores, label = paste0(c("\nuMCB ","cMCB ","DSC ","UNC "),
+                                            c(umcb, cmcb, dsc, unc),
+                                            collapse = "\n")) %>%
+  select(model, label)
+qs_scores <- select(all_scores, model, score)
 
 reliability_diagram <- ggplot(recal_and_bands, aes(x, x_rc, group=model)) +
   facet_grid(quantile ~ model) +
@@ -167,4 +169,5 @@ murphy_diagram <- ggplot(df) +
 # Combine everything --------------------------------------------------------------------------
 fig10 <- grid.arrange(forecast_plot, coverage_plot, reliability_diagram, murphy_diagram,
              ncol=1, heights=c(0.258, 0.25, 0.25, 0.242))
-ggsave("Figure10.pdf", plot=fig10, width=160, height=200, unit="mm", device="pdf", dpi=300)
+ggsave("figures/10_GEFCom14_CaseStudy.pdf", plot=fig10, width=160, height=200,
+       unit="mm", device="pdf", dpi=300)
