@@ -2,6 +2,8 @@ library(tidyverse)
 library(patchwork)
 source("R/coverage_functions.R")
 
+set.seed(100)
+
 # Load data
 MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 
@@ -13,7 +15,7 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   ) %>%
   mutate(value = floor(value))
 
-p1 <- plot_coverage(df, B = 100, type = "consistency", difference = FALSE) +
+p1 <- plot_coverage(df, B = 100, band_type = "consistency") +
   facet_grid("Consistency" ~ model) +
   theme(
     axis.title.x = element_blank(),
@@ -24,7 +26,7 @@ p1 <- plot_coverage(df, B = 100, type = "consistency", difference = FALSE) +
     axis.title.y = element_text(hjust = -0.35)
   )
 
-p2 <- plot_coverage(df, B = 100, type = "confidence2", difference = FALSE) +
+p2 <- plot_coverage(df, B = 100, band_type = "confidence2") +
   facet_grid("Confidence" ~ model) +
   theme(
     strip.background.x = element_blank(),
