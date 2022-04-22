@@ -1,5 +1,4 @@
 library(tidyverse)
-Sys.setlocale("LC_ALL", "C")
 
 coverage <- function(df) {
   df %>%
@@ -154,7 +153,5 @@ plot_coverage <- function(df,
         theme(aspect.ratio = 1)
     }
   }
-  # print(g)
-  # invisible(results)
   return(g)
 }

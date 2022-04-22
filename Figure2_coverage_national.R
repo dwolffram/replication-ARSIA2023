@@ -1,15 +1,15 @@
 library(tidyverse)
 library(patchwork)
-source("R/plot_coverage.R")
+source("R/coverage_functions.R")
 
 # Load data
-models <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
+MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location == "US",
     target == "1 wk ahead inc death",
-    model %in% models
+    model %in% MODELS
   ) %>%
   mutate(value = floor(value))
 
@@ -33,7 +33,6 @@ p2 <- plot_coverage(df, B = 100, type = "confidence2", difference = FALSE) +
     plot.background = element_blank()
   ) +
   labs(y = element_blank())
-
 
 p1 / p2
 
