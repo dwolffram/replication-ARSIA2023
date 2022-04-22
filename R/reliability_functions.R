@@ -93,7 +93,7 @@ plot_reliability <- function(df, n_resamples = 99) {
   # compute recalibration, consistency band and score decomposition
   df_reldiag <- df %>%
     group_by(model, quantile) %>%
-    do(reldiag(.$value, .$truth, alpha = .$quantile, n_resamples = n_resamples)) %>%
+    summarize(reldiag(value, truth, alpha = unique(quantile), n_resamples = n_resamples), .groups = "drop") %>%
     mutate(across(c(x_rc, lower, upper), ~ pmax(., 0))) # set negative values to zero
 
   # summarize scores and create labels
