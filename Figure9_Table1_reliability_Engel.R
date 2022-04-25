@@ -4,7 +4,7 @@ source("R/functions_Engel.R")
 # Figure 9
 n_resamples = 999
 digits = 1
-set.seed = 100
+set.seed(100)
 
 quantile = 0.1
 
