@@ -98,7 +98,7 @@ plot_coverage <- function(results,
                           difference = FALSE) {
   band_type <- results$band_type[1]
 
-  # some customization used in all plots
+  # some customizations used in all plots
   my_theme <- list(
     scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = function(x) ifelse(x == 0, "0", x)),
     scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y)),
