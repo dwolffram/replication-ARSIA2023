@@ -4,18 +4,20 @@ source("R/coverage_functions.R")
 
 set.seed(100)
 
-# Load data
-MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
-
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location_name == "Vermont",
     target == "1 wk ahead inc death",
-    model %in% MODELS
+    model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
   ) %>%
   mutate(value = floor(value))
 
-p1 <- plot_coverage(df, B = 100, band_type = "consistency") +
+# Upper plot with consistency bands
+coverage1 <- df %>%
+  group_by(model, quantile) %>%
+  coverage(band_type = "consistency")
+
+p1 <- plot_coverage(coverage1) +
   facet_grid("Consistency" ~ model) +
   theme(
     axis.title.x = element_blank(),
@@ -26,7 +28,12 @@ p1 <- plot_coverage(df, B = 100, band_type = "consistency") +
     axis.title.y = element_text(hjust = -0.35)
   )
 
-p2 <- plot_coverage(df, B = 100, band_type = "confidence") +
+# Lower plot with confidence bands for hard and soft coverage
+coverage2 <- df %>%
+  group_by(model, quantile) %>%
+  coverage(band_type = "confidence", B = 100)
+
+p2 <- plot_coverage(coverage2) +
   facet_grid("Confidence" ~ model) +
   theme(
     strip.background.x = element_blank(),
@@ -38,4 +45,4 @@ p2 <- plot_coverage(df, B = 100, band_type = "confidence") +
 
 p1 / p2
 
-ggsave("figures/3_Vermont_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf", dpi = 300)
+# ggsave("figures/3_Vermont_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf", dpi = 300)

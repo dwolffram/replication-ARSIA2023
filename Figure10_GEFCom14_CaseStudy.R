@@ -3,7 +3,7 @@ library(lubridate)
 library(ggplot2)
 library(gridExtra)
 
-source("Routines_Kristof/coverage_functions.R")
+source("R/coverage_functions.R")
 source("Routines_Kristof/reliability_functions.R")
 source("Routines_Kristof/murphydiag_function.R")
 
@@ -72,7 +72,16 @@ forecast_plot <- ggplot(mapping=aes(x=target_end_date)) +
 
 
 # Construct coverage plots ---------------------------------------------------------------------
-coverage_plot <- plot_coverage(my_pred, type = "None")
+coverage_df <- my_pred %>% 
+  group_by(model, quantile) %>% 
+  coverage(band_type = "none")
+
+coverage_plot <- plot_coverage(coverage_df) + 
+  facet_grid(""~model) +
+  theme(panel.grid.major = element_line(size = 0.05),
+        panel.grid.minor = element_line(size = 0.05),
+        strip.background.x = element_blank(), strip.text.x = element_blank(),
+        strip.background.y = element_blank())
 
 
 # Construct reliability diagram ----------------------------------------------------------------
