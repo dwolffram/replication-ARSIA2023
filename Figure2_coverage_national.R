@@ -1,6 +1,6 @@
 library(tidyverse)
 library(patchwork)
-source("R/coverage_functions.R")
+source("R/functions_Engel.R")
 
 # Load data
 MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
@@ -13,7 +13,11 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   ) %>%
   mutate(value = floor(value))
 
-p1 <- plot_coverage(df, B = 100, type = "consistency", difference = FALSE) +
+coverage1 = df %>%
+  group_by(model, quantile) %>%
+  coverage(type = "consistency")
+p1 = plot.coverage(coverage1) +
+  facet_wrap("model") +
   facet_grid("Consistency" ~ model) +
   theme(
     axis.title.x = element_blank(),
@@ -24,7 +28,11 @@ p1 <- plot_coverage(df, B = 100, type = "consistency", difference = FALSE) +
     axis.title.y = element_text(hjust = -0.35)
   )
 
-p2 <- plot_coverage(df, B = 100, type = "confidence2", difference = FALSE) +
+coverage2 = df %>%
+  group_by(model, quantile) %>%
+  coverage(type = "confidence2", B = 100)
+p2 = plot.coverage(coverage2) +
+  facet_wrap("model") +
   facet_grid("Confidence" ~ model) +
   theme(
     strip.background.x = element_blank(),
@@ -36,4 +44,4 @@ p2 <- plot_coverage(df, B = 100, type = "confidence2", difference = FALSE) +
 
 p1 / p2
 
-ggsave("figures/2_national_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf", dpi = 300)
+# ggsave("figures/2_national_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf", dpi = 300)
