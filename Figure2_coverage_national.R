@@ -15,7 +15,7 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
 
 coverage1 = df %>%
   group_by(model, quantile) %>%
-  coverage(type = "consistency")
+  coverage(band_type = "consistency")
 p1 = plot.coverage(coverage1) +
   facet_wrap("model") +
   facet_grid("Consistency" ~ model) +
@@ -30,7 +30,7 @@ p1 = plot.coverage(coverage1) +
 
 coverage2 = df %>%
   group_by(model, quantile) %>%
-  coverage(type = "confidence2", B = 100)
+  coverage(band_type = "confidence2", B = 100)
 p2 = plot.coverage(coverage2) +
   facet_wrap("model") +
   facet_grid("Confidence" ~ model) +

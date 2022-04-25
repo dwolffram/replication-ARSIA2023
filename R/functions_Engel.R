@@ -1,7 +1,7 @@
 # Coverage
 # Compute coverage (returns object of type coverage)
 coverage = function(df, 
-                    type = "confidence",
+                    band_type = "confidence",
                      date_column = target_end_date, 
                      B = 100){
   # Functions
@@ -23,10 +23,9 @@ coverage = function(df,
       df_resampled <- df %>%
         group_by(!!date_column) %>%
         sample_n_groups(n = n_distinct(group_keys(.)), replace = TRUE)
-      print(i)
       coverage_sample <- df_resampled %>% 
         group_by(across(df_groups)) %>%
-        coverage(type = NA)
+        coverage(band_type = "none")
       
       coverage_df <- bind_rows(coverage_df, coverage_sample)
     }
@@ -72,25 +71,25 @@ coverage = function(df,
   eps = 10^-10
 
   results = df %>% summarize(l = mean(truth < value - eps), u = mean(truth <= value + eps), .groups = "drop")
-  if(!is.na(type)){
-    if (type %in% c("confidence", "confidence2")) {
-      date_column <- enquo(date_column)
-      bands <- get_confidence_bands(df, date_column, B,df_groups = df_groups)
-    }
-    else if(type == "consistency"){
-      bands <- get_consistency_bands(df)
-    }
-     results <- results %>%
-      left_join(bands, by = group_vars(df)) %>%
-      add_column(bands = type)
+  
+  if (band_type %in% c("confidence", "confidence2")) {
+    date_column <- enquo(date_column)
+    bands <- get_confidence_bands(df, date_column, B,df_groups = df_groups)
   }
+  else if(band_type == "consistency"){
+    bands <- get_consistency_bands(df)
+  }
+  results <- results %>%
+    {if(band_type != "none") left_join(.,bands, by = group_vars(df)) else .} %>%
+    add_column(band_type = band_type)
+     
   return(results)
 }
 
 # Plot coverage plot (plots object returned by coverage)
 plot.coverage = function(results,
                          difference = FALSE){
-  type = results$bands[1]
+  band_type = results$band_type[1]
   
   # some customization used in all plots
   my_theme <- list(
@@ -103,68 +102,31 @@ plot.coverage = function(results,
           panel.grid.minor = element_line(size = 0.05))
   )
   
-  if(type %in% c("confidence", "confidence2")){
-    if (!difference) {
-      g <- ggplot(results) +
-        # facet_wrap("model", ncol = 3) +
-        geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), size = 0.2, linetype = "solid", colour = "grey70") +
-        {if (type == "confidence") list(
-          geom_ribbon(aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkblue", alpha = 0.2),
-          geom_ribbon(aes(x = quantile, ymin = u_5, ymax = u_95), fill = "darkred", alpha = 0.2))} +
-        {if (type == "confidence2") list(
-          geom_ribbon(aes(x = quantile, ymin = l_25, ymax = l_75), fill = "darkred", alpha = 0.3),
-          geom_ribbon(aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkred", alpha = 0.2))} +
-        geom_errorbar(aes(x=quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
-        my_theme +
-        ylab("Coverage") +
-        coord_fixed()
-    }
-    else{
-      results <- results %>% 
-        mutate_at(vars("l", "u", "l_5", "l_25", "l_75", "l_95", "u_5", "u_25","u_75", "u_95"), 
-                  list(~ . - quantile))
-      
-      g <- ggplot(results) +
-        # facet_wrap("model") +
-        geom_hline(yintercept = 0, size = 0.3, linetype = "solid", color = "darkgray") +
-        {if (type == "confidence") list(
-          geom_ribbon(aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkblue", alpha = 0.2),
-          geom_ribbon(aes(x = quantile, ymin = u_5, ymax = u_95), fill = "darkred", alpha = 0.2))} +
-        {if (type == "confidence2") list(
-          geom_ribbon(aes(x = quantile, ymin = l_25, ymax = l_75), fill = "darkred", alpha = 0.3),
-          geom_ribbon(aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkred", alpha = 0.2))} +
-        geom_errorbar(aes(x=quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
-        my_theme +
-        ylab("Coverage - Level") +
-        theme(aspect.ratio = 1)
-    }
+  if (band_type == "confidence") {
+    bands_layer <- list(
+      geom_ribbon(data = results, aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkblue", alpha = 0.2),
+      geom_ribbon(data = results, aes(x = quantile, ymin = u_5, ymax = u_95), fill = "darkred", alpha = 0.2)
+    )
+  } else if (band_type == "confidence2") {
+    bands_layer <- list(
+      geom_ribbon(data = results, aes(x = quantile, ymin = l_25, ymax = l_75), fill = "darkred", alpha = 0.3),
+      geom_ribbon(data = results, aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkred", alpha = 0.2)
+    )
+  } else if (band_type == "consistency") {
+    bands_layer <- list(
+      geom_ribbon(data = results, aes(x = quantile, ymin = lower50, ymax = upper50), fill = "skyblue3", alpha = 0.3),
+      geom_ribbon(data = results, aes(x = quantile, ymin = lower90, ymax = upper90), fill = "skyblue3", alpha = 0.2)
+    )
   }
-  else if(type == "consistency"){
-    if(!difference){
-      g = ggplot(results) +
-        geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
-                     size = 0.2, linetype = "solid", colour = "grey70") +
-        geom_ribbon(aes(x = quantile, ymin = lower50, ymax = upper50), fill = "skyblue3", alpha = 0.3) +
-        geom_ribbon(aes(x = quantile, ymin = lower90, ymax = upper90), fill = "skyblue3", alpha = 0.2) +
-        geom_errorbar(aes(x=quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
-        my_theme +
-        ylab("Coverage") +
-        theme(aspect.ratio = 1)
-    }
-    else{
-      results <- results %>% 
-        mutate_at(vars("l", "u", "lower50", "upper50", "lower90", "upper90"), 
-                  list(~ . - quantile))
-      
-      g <- ggplot(results) +
-        # facet_wrap("model","type") +
-        geom_hline(yintercept = 0, size = 0.3, linetype = "solid", color = "darkgray") +
-        {if(region) geom_ribbon(aes(x = quantile, ymin = lower50, ymax = upper50), fill = "skyblue3", alpha = 0.3)} +
-        {if(region) geom_ribbon(aes(x = quantile, ymin = lower90, ymax = upper90), fill = "skyblue3", alpha = 0.2)} +
-        geom_errorbar(aes(x=quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
-        my_theme
-    }
-  }
+  
+  ggplot(results) +
+    # facet_wrap("model", ncol = 3) +
+    geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), size = 0.2, linetype = "solid", colour = "grey70") +
+    {
+      if (!is.na(band_type)) bands_layer
+    } +
+    geom_errorbar(aes(x = quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
+    my_theme
 }
 
 # Reliability

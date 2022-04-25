@@ -3,7 +3,7 @@ source("R/functions_Engel.R")
 
 coverage_Engel = data_long %>%
   group_by(model, type, quantile) %>%
-  coverage(type = "consistency") %>%
+  coverage(band_type = "consistency") %>%
   mutate_at(vars("lower50", "upper50", "lower90", "upper90"), 
             list(~ ifelse(type == is,quantile,.)))
 
