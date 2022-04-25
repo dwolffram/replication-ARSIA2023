@@ -30,10 +30,8 @@ quantile_score <- function(y_true, y_pred, alpha){
   return((1 * (y_true < y_pred) - alpha) * (y_pred - y_true))
 }
 
-murphydiag <- function(data, alpha, digits=3) {
-  df <- filter(data, quantile == alpha)
-
-  score_label <- df %>%
+murphydiag <- function(data, digits=3) {
+  score_label <- data %>%
     mutate(qs = quantile_score(truth, value, quantile)) %>%
     group_by(model, quantile) %>%
     summarize(mean_qs = mean(qs),
@@ -41,7 +39,7 @@ murphydiag <- function(data, alpha, digits=3) {
                              ")", collapse = "\n"),
               .groups = "drop")
 
-  df <- df %>%
+  df <- data %>%
     group_by(model, quantile) %>%
     summarize(get_elementary_scores(truth, value, quantile, n=500), .groups = "drop")
 
