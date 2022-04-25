@@ -2,6 +2,8 @@ library(tidyverse)
 library(patchwork)
 source("R/functions_Engel.R")
 
+set.seed(100)
+
 # Load data
 MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 
@@ -18,6 +20,7 @@ coverage1 = df %>%
   coverage(band_type = "consistency")
 p1 = plot.coverage(coverage1) +
   facet_wrap("model") +
+
   facet_grid("Consistency" ~ model) +
   theme(
     axis.title.x = element_blank(),

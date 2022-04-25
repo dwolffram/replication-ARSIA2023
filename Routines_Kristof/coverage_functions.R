@@ -84,7 +84,8 @@ plot_coverage <- function(df,
     ),
     xlab("Quantile level"),
     ylab("Coverage"),
-    coord_fixed()
+    strip.background.x = element_blank(), strip.text.x = element_blank(),
+    strip.background.y = element_blank()
   )
 
   if (band_type == "confidence") {
@@ -111,7 +112,7 @@ plot_coverage <- function(df,
   coverage_full <- coverage(df)
 
   ggplot(coverage_full) +
-    facet_wrap("model", ncol = 3) +
+    facet_grid(""~model) +  # want to denote row with empty string (to have alignment)
     geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), size = 0.2, linetype = "solid", colour = "grey70") +
     {
       if (band_type != "None") bands_layer
