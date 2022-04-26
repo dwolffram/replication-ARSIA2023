@@ -104,7 +104,7 @@ plot_coverage <- function(results,
     scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y)),
     coord_fixed(),
     xlab("Quantile level"),
-    ylab(NULL),
+    ylab("Coverage"),
     theme_bw(base_size = 11),
     theme(
       panel.grid.major = element_line(size = 0.05),

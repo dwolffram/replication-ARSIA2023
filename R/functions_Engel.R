@@ -96,7 +96,7 @@ plot.coverage = function(results,
     scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = function(x) ifelse(x == 0, "0", x)),
     scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y)),
     xlab("Quantile level"),
-    ylab(NULL),
+    ylab("Coverage"),
     theme_bw(base_size = 11),
     theme(panel.grid.major = element_line(size = 0.05), 
           panel.grid.minor = element_line(size = 0.05))
