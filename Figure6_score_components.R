@@ -3,32 +3,26 @@ library(geomtextpath)
 library(ggrepel)
 source("R/reliability_functions.R")
 
+df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
+  filter(
+    location != "US",
+    quantile %in% c(0.25, 0.5, 0.75),
+    target == "1 wk ahead inc death",
+    !model %in% c("USC-SI_kJalpha", "COVIDhub-4_week_ensemble", "COVIDhub_CDC-ensemble")
+  )
+
 # compute score decomposition
+results <- df %>%
+  group_by(model, quantile) %>%
+  summarize(reldiag(value, truth, alpha = unique(quantile), resampling = FALSE))
 
-# df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
-#   filter(
-#     location != "US",
-#     quantile %in% c(0.25, 0.5, 0.75),
-#     target == "1 wk ahead inc death",
-#     !model %in% c("USC-SI_kJalpha", "COVIDhub-4_week_ensemble", "COVIDhub_CDC-ensemble")
-#   )
-# 
-# results <- df %>%
-#   group_by(model, quantile) %>%
-#   summarize(reldiag(value, truth, alpha = unique(quantile), n_resamples = 99))
-# 
-# scores <- results %>%
-#   group_by(quantile, model) %>%
-#   distinct(across(score:pval_ucond))
+scores <- results %>%
+  group_by(quantile, model) %>%
+  distinct(across(score:pval_ucond))
 
-# write.csv(scores, "data/covid19_score_components_states.csv", row.names=FALSE)
-
-# load precomputed score components
-scores <- read.csv("data/covid19_score_components_states.csv")
-
-
-# adjust model names (to save space)
 scores$quantile <- as.factor(scores$quantile)
+
+# shorten model names to save space
 scores$model <- str_replace(scores$model, "COVIDhub-baseline", "Baseline")
 scores$model <- as.character(lapply(strsplit(as.character(scores$model), "-"), "[[", 1))
 scores$model <- str_replace(scores$model, "COVIDhub", "COVIDhub-ensemble")
@@ -102,14 +96,14 @@ ggplot(data = scores) +
 #     y_best = dsc_best - mcb_best,
 #     y_worst = dsc_worst - mcb_worst
 #   )
-# 
+#
 # facet_lims <- iso2 %>%
 #   group_by(quantile) %>%
 #   summarize(
 #     x_lim = 1.25 * mcb_worst,
 #     y_lim = 1.025 * dsc_best
 #   )
-# 
+#
 # iso2 <- iso2 %>%
 #   group_by(quantile) %>%
 #   summarize(
@@ -124,9 +118,9 @@ ggplot(data = scores) +
 #     score = (unc - intercept),
 #     label = score
 #   )
-# 
-# 
-# 
+#
+#
+#
 # ggplot(data = scores) +
 #   facet_wrap("quantile", scales = "free", ncol = 3) +
 #   geom_blank(data = facet_lims, aes(x = x_lim, y = y_lim)) +
@@ -157,6 +151,6 @@ ggplot(data = scores) +
 #     axis.ticks.y = element_blank()
 #   ) +
 #   scale_color_brewer(palette = "Set1")
-# 
-# 
+#
+#
 # ggsave("figures/6_score_decomposition_states2.pdf", width = 160, height = 70, unit = "mm", device = "pdf", dpi = 300)
