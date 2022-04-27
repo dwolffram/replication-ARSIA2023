@@ -141,7 +141,6 @@ plot_reliability <- function(df, n_resamples = 99, digits = 1) {
     theme(
       panel.grid.major = element_line(size = 0.05),
       panel.grid.minor = element_line(size = 0.05),
-      strip.text.x = element_text(size = 7),
       strip.text.y = element_text(size = 7),
       strip.background.x = element_blank(),  # no facet boxes in x direction
       strip.text.x = element_blank()         # no facet texts in x direction)

@@ -5,7 +5,7 @@ library(gridExtra)
 
 source("R/coverage_functions.R")
 source("Routines_Kristof/reliability_functions.R")
-source("Routines_Kristof/murphydiag_function.R")
+source("R/murphy_diagram_functions.R")
 
 QUANTILE <- 0.75
 N_RES_RELIABILITY <- 99
@@ -91,25 +91,9 @@ recal_and_bands <- plot_reliability(filter(my_pred, quantile ==  QUANTILE),
 
 # Construct murphy diagram ---------------------------------------------------------------------
 df <- murphydiag(filter(my_pred, quantile ==  QUANTILE), digits = DIGITS)
-ymax <- max(df$mean_score)
-xmax <- max(df$theta)
-
 murphy_diagram <- ggplot(df) +
   facet_wrap(~quantile, strip.position="right") +
-  geom_line(aes(x=theta, y=mean_score, color=label), size=0.5) +
-  xlab(expression(paste("Threshold ", theta))) +
-  ylab("Elementary score") +
-  theme_bw(base_size = 11) +
-  theme(legend.justification=c(1,1), legend.position=c(0.99,0.99),
-        legend.title=element_text(size=6, face = "bold"), legend.text=element_text(size=6),
-        legend.title.align = 0, legend.text.align = 0,
-        legend.key.size = unit(0.2, "lines"), legend.background = element_blank(),
-        panel.grid.major = element_line(size = 0.05),
-        panel.grid.minor = element_line(size = 0.05)) +
-  scale_color_brewer(palette="Set1") +
-  scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x)) +
-  labs(color = "Model (pinball loss)") +
-  expand_limits(x = xmax, y = ymax)
+  scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x))
 
 
 # Combine everything --------------------------------------------------------------------------
