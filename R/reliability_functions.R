@@ -99,15 +99,20 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
 
 
 # Plot reliability diagram
-plot_reldiag <- function(df_reldiag, score_decomp = TRUE) {
+plot_reldiag <- function(df_reldiag,
+                         score_decomp = TRUE,
+                         pval = TRUE,
+                         fix_coord = TRUE) {
   if (score_decomp) {
+    p_ucmb <- if (pval) paste0(" [p = ", format(round(pval_ucond, digits = 2), nsmall = 2), "]") else ""
+    p_cmb <- if (pval) paste0(" [p = ", format(round(pval_cond, digits = 2), nsmall = 2), "]") else ""
     digits <- df_reldiag$digits[1]
     scores <- df_reldiag %>%
       distinct(across(score:pval_ucond)) %>%
       mutate(label = paste0(c("\nuMCB ", "cMCB ", "DSC ", "UNC "),
-        format(round(c(umcb, cmcb, dsc, unc), digits = digits), nsmall = 1, trim = TRUE),
-        c(paste0(" [p = ", format(round(pval_ucond, digits = 2), nsmall = 2), "]"), "", "", ""),
-        c("", paste0(" [p = ", format(round(pval_cond, digits = 2), nsmall = 2), "]"), "", ""),
+        format(round(c(umcb, cmcb, dsc, unc), digits = digits), nsmall = digits, trim = TRUE),
+        c(p_ucmb, "", "", ""),
+        c("", p_cmb, "", ""),
         collapse = " \n"
       ))
     score_layer <- list(
@@ -133,7 +138,7 @@ plot_reldiag <- function(df_reldiag, score_decomp = TRUE) {
       .groups = "keep"
     )
 
-  ggplot(df_reldiag, aes(x, x_rc, group = model)) +
+  rel_diag <- ggplot(df_reldiag, aes(x, x_rc, group = model)) +
     # facet_grid(rows = vars(quantile), cols = vars(model)) +
     geom_point(aes(x, y), alpha = 0.3, size = 0.1) +
     geom_abline(intercept = 0, slope = 1, colour = "grey70") +
@@ -152,8 +157,14 @@ plot_reldiag <- function(df_reldiag, score_decomp = TRUE) {
       panel.grid.minor = element_line(size = 0.05),
       strip.text.x = element_text(size = 7),
       strip.text.y = element_text(size = 7),
-      aspect.ratio = 1
     ) +
-    coord_fixed() +
     score_layer
+
+  if (fix_coord) {
+    rel_diag <- rel_diag +
+      theme(aspect.ratio = 1) +
+      coord_fixed()
+  }
+
+  return(rel_diag)
 }

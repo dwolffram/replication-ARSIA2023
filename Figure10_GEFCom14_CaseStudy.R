@@ -4,7 +4,7 @@ library(ggplot2)
 library(gridExtra)
 
 source("R/coverage_functions.R")
-source("Routines_Kristof/reliability_functions.R")
+source("R/reliability_functions.R")
 source("R/murphy_diagram_functions.R")
 
 QUANTILE <- 0.75
@@ -18,7 +18,7 @@ df <- filter(my_pred, target_end_date >= "2013-01-01 12:00:00",
              target_end_date <= "2013-01-08 12:00:00")
 
 zero_hour <- hour(df$target_end_date) == 0
-# drop first date as it is not displayed and pick 2nd and 6th date to display on x-axis
+# pick 2nd and 6th date to display on x-axis (for the chosen 7 day period)
 my_dates <- unique(df$target_end_date[zero_hour])[c(2, 6)]
 
 median_and_truth <- filter(df, quantile == 0.5)
@@ -76,7 +76,7 @@ coverage_df <- my_pred %>%
   group_by(model, quantile) %>% 
   coverage(band_type = "none")
 
-coverage_plot <- plot_coverage(coverage_df) + 
+coverage_plot <- plot_coverage(coverage_df, fix_coord = FALSE) +
   facet_grid(""~model) +
   theme(panel.grid.major = element_line(size = 0.05),
         panel.grid.minor = element_line(size = 0.05),
@@ -85,19 +85,26 @@ coverage_plot <- plot_coverage(coverage_df) +
 
 
 # Construct reliability diagram ----------------------------------------------------------------
-recal_and_bands <- plot_reliability(filter(my_pred, quantile ==  QUANTILE),
-                                    N_RES_RELIABILITY, digits = DIGITS)
+df <- filter(my_pred, quantile ==  QUANTILE)
+df_reldiag <- df %>%
+  group_by(model, quantile) %>%
+  summarize(reldiag(value, truth, alpha = QUANTILE, n_resamples = 99, digits = DIGITS),
+            .groups = "keep") %>%
+  # set negative values to zero, target is standardized
+  mutate(across(c(x_rc, lower, upper), ~ pmin(pmax(., 0), 1)))
+recal_and_bands <- plot_reliability(my_rel) +
+  facet_grid(model ~ quantile) +
+  theme(strip.background.x = element_blank(), strip.text.x = element_blank())
 
 
 # Construct murphy diagram ---------------------------------------------------------------------
 df <- murphydiag(filter(my_pred, quantile ==  QUANTILE), digits = DIGITS)
-murphy_diagram <- ggplot(df) +
-  facet_wrap(~quantile, strip.position="right") +
+murphy_diagram <- plot_murphy_diagram(df, strip_pos = "right", aspect_ratio_1 = FALSE) +
   scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x))
 
 
 # Combine everything --------------------------------------------------------------------------
 fig10 <- grid.arrange(forecast_plot, coverage_plot, reliability_diagram, murphy_diagram,
-             ncol=1, heights=c(0.258, 0.25, 0.25, 0.242))
+                      ncol=1, heights=c(0.258, 0.25, 0.25, 0.242))
 ggsave("figures/10_GEFCom14_CaseStudy.pdf", plot=fig10, width=160, height=200,
        unit="mm", device="pdf", dpi=300)
