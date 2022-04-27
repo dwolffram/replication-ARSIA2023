@@ -55,11 +55,10 @@ murphydiag <- function(data, digits = 1) {
 }
 
 plot_murphy_diagram <- function(df,
-                                strip_pos = "top",
                                 aspect_ratio_1 = TRUE) {
   murphy_diag <- ggplot(df) +
     geom_line(aes(x = theta, y = mean_score, color = label), size = 0.5) +
-    facet_wrap("quantile", scales = "free", strip.position = strip_pos) +
+    facet_wrap("quantile", scales = "free") +
     xlab(expression(paste("Threshold ", theta))) +
     ylab("Elementary score") +
     theme_bw(base_size = 11) +

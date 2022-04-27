@@ -99,8 +99,9 @@ recal_and_bands <- plot_reliability(my_rel) +
 
 # Construct murphy diagram ---------------------------------------------------------------------
 df <- murphydiag(filter(my_pred, quantile ==  QUANTILE), digits = DIGITS)
-murphy_diagram <- plot_murphy_diagram(df, strip_pos = "right", aspect_ratio_1 = FALSE) +
-  scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x))
+murphy_diagram <- plot_murphy_diagram(df, aspect_ratio_1 = FALSE) +
+  scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x)) +
+  facet_wrap(~quantile, strip.position = "right")
 
 
 # Combine everything --------------------------------------------------------------------------
