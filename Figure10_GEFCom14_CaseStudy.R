@@ -7,6 +7,8 @@ source("R/coverage_functions.R")
 source("R/reliability_functions.R")
 source("R/murphy_diagram_functions.R")
 
+set.seed(100)
+
 QUANTILE <- 0.75
 N_RES_RELIABILITY <- 99
 DIGITS <- 3
@@ -79,8 +81,8 @@ forecast_plot <- ggplot(mapping = aes(x = target_end_date)) +
     legend.key.size = unit(0.4, "lines"),
     panel.grid.major = element_line(size = 0.05), # linewidth of background grid
     panel.grid.minor = element_line(size = 0.05), # linewidth of background grid
-    strip.background.y = element_blank()
-  ) # remove grey box from facet_grid in rows
+    strip.background.y = element_blank() # remove grey box from facet_grid in rows
+  )
 
 
 # Construct coverage plots ---------------------------------------------------------------------
@@ -102,7 +104,7 @@ coverage_plot <- plot_coverage(coverage_df, fix_coord = FALSE) +
 df <- filter(my_pred, quantile == QUANTILE)
 df_reldiag <- df %>%
   group_by(model, quantile) %>%
-  summarize(reldiag(value, truth, alpha = QUANTILE, n_resamples = 99, digits = DIGITS),
+  summarize(reldiag(value, truth, alpha = QUANTILE, n_resamples = N_RES_RELIABILITY, digits = DIGITS),
     .groups = "keep"
   ) %>%
   # set negative values to zero, target is standardized
