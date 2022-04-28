@@ -102,7 +102,6 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
 plot_reldiag <- function(df_reldiag,
                          score_decomp = TRUE,
                          pval = TRUE,
-                         fix_coord = TRUE,
                          my_alpha = 0.3) {
   if (score_decomp) {
     digits <- df_reldiag$digits[1]
@@ -128,7 +127,6 @@ plot_reldiag <- function(df_reldiag,
     score_layer <- list()
   }
 
-
   # needed to ensure square facets with equal x and y limits
   facet_lims <- df_reldiag %>%
     summarize(
@@ -151,14 +149,12 @@ plot_reldiag <- function(df_reldiag,
     ylab("Conditional quantile") +
     scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
     theme_bw(base_size = 11) +
+    coord_fixed() +
     theme(
       panel.grid.major = element_line(size = 0.05),
       panel.grid.minor = element_line(size = 0.05),
       strip.text.x = element_text(size = 7),
       strip.text.y = element_text(size = 7),
     ) +
-    score_layer +
-    {
-      if (fix_coord) coord_fixed()
-    }
+    score_layer
 }

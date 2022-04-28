@@ -54,8 +54,7 @@ murphydiag <- function(data, digits = 1) {
   return(df)
 }
 
-plot_murphy_diagram <- function(df,
-                                aspect_ratio_1 = TRUE) {
+plot_murphy_diagram <- function(df) {
   ggplot(df) +
     geom_line(aes(x = theta, y = mean_score, color = label), size = 0.5) +
     facet_wrap("quantile", scales = "free") +
@@ -71,11 +70,9 @@ plot_murphy_diagram <- function(df,
       legend.key.size = unit(0.2, "lines"),
       legend.background = element_blank(),
       panel.grid.major = element_line(size = 0.05),
-      panel.grid.minor = element_line(size = 0.05)
+      panel.grid.minor = element_line(size = 0.05),
+      aspect.ratio = 1
     ) +
-    {
-      if (aspect_ratio_1) theme(aspect.ratio = 1)
-    } +
     scale_color_brewer(palette = "Set1") +
     labs(color = "Model (pinball loss)")
 }
