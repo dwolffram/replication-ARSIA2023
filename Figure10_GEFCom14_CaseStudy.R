@@ -94,6 +94,8 @@ df_reldiag <- df %>%
   mutate(across(c(x_rc, lower, upper), ~ pmin(pmax(., 0), 1)))
 reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, fix_coord = FALSE, my_alpha = 0.04) +
   facet_grid(quantile ~ model) +
+  scale_x_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x)) +
+  scale_y_continuous(breaks = 0:4 / 4, labels=function(x) ifelse(x == 0, "0", x)) +
   theme(strip.background.x = element_blank(), strip.text.x = element_blank())
 
 
