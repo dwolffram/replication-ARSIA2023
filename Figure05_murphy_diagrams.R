@@ -18,10 +18,14 @@ df$model <- str_replace(df$model, "KITmetricslab-select_ensemble", "KITmetricsla
 
 df_murphy <- murphydiag(df)
 
+ymax <- max(df_murphy$mean_score)
+xmax <- max(df_murphy$theta)
+
 p1 <- df_murphy %>%
   filter(quantile == 0.25) %>%
   plot_murphy_diagram() +
-  xlab(NULL)
+  xlab(NULL) + 
+  scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y))
 
 p2 <- df_murphy %>%
   filter(quantile == 0.5) %>%
@@ -35,6 +39,6 @@ p3 <- df_murphy %>%
 
 g <- p1 + p2 + p3
 
-g
+g + expand_limits(x = xmax, y = ymax)
 
-ggsave("figures/5_states_murphy.pdf", plot = g, width = 160, height = 70, unit = "mm", device = "pdf", dpi = 300)
+# ggsave("figures/5_states_murphy.pdf", plot = g, width = 160, height = 70, unit = "mm", device = "pdf", dpi = 300)
