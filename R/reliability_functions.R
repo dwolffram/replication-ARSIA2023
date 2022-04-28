@@ -137,7 +137,7 @@ plot_reldiag <- function(df_reldiag,
       .groups = "keep"
     )
 
-  rel_diag <- ggplot(df_reldiag, aes(x, x_rc, group = model)) +
+  ggplot(df_reldiag, aes(x, x_rc, group = model)) +
     # facet_grid(rows = vars(quantile), cols = vars(model)) +
     geom_point(aes(x, y), alpha = my_alpha, size = 0.1) +
     geom_abline(intercept = 0, slope = 1, colour = "grey70") +
@@ -157,13 +157,8 @@ plot_reldiag <- function(df_reldiag,
       strip.text.x = element_text(size = 7),
       strip.text.y = element_text(size = 7),
     ) +
-    score_layer
-
-  if (fix_coord) {
-    rel_diag <- rel_diag +
-      theme(aspect.ratio = 1) +
-      coord_fixed()
-  }
-
-  return(rel_diag)
+    score_layer +
+    {
+      if (fix_coord) coord_fixed()
+    }
 }

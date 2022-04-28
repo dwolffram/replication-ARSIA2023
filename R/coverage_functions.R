@@ -95,7 +95,6 @@ coverage <- function(df,
 
 # Plot coverage plot (plots object returned by coverage)
 plot_coverage <- function(results,
-                          difference = FALSE,
                           fix_coord = TRUE) {
   band_type <- results$band_type[1]
 
@@ -109,12 +108,11 @@ plot_coverage <- function(results,
     theme(
       panel.grid.major = element_line(size = 0.05),
       panel.grid.minor = element_line(size = 0.05)
-    )
+    ),
+    {
+      if (fix_coord) coord_fixed()
+    }
   )
-
-  if (fix_coord) {
-    my_theme <- append(my_theme, coord_fixed())
-  }
 
   if (band_type == "confidence") {
     bands_layer <- list(
