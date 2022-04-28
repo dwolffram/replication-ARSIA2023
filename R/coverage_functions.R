@@ -94,24 +94,21 @@ coverage <- function(df,
 }
 
 # Plot coverage plot (plots object returned by coverage)
-plot_coverage <- function(results,
-                          fix_coord = TRUE) {
+plot_coverage <- function(results) {
   band_type <- results$band_type[1]
 
   # some customizations used in all plots
   my_theme <- list(
     scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = function(x) ifelse(x == 0, "0", x)),
     scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y)),
+    coord_fixed(),
     xlab("Quantile level"),
     ylab("Coverage"),
     theme_bw(base_size = 11),
     theme(
       panel.grid.major = element_line(size = 0.05),
       panel.grid.minor = element_line(size = 0.05)
-    ),
-    {
-      if (fix_coord) coord_fixed()
-    }
+    )
   )
 
   if (band_type == "confidence") {

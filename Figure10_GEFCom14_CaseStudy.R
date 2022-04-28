@@ -90,14 +90,15 @@ coverage_df <- my_pred %>%
   group_by(model, quantile) %>%
   coverage(band_type = "none")
 
-coverage_plot <- plot_coverage(coverage_df, fix_coord = FALSE) +
+coverage_plot <- plot_coverage(coverage_df) +
   facet_grid("" ~ model) +
   theme(
     panel.grid.major = element_line(size = 0.05),
     panel.grid.minor = element_line(size = 0.05),
     strip.background.x = element_blank(), strip.text.x = element_blank(),
     strip.background.y = element_blank()
-  )
+  ) +
+  coord_cartesian()
 
 
 # Construct reliability diagram ----------------------------------------------------------------
@@ -109,18 +110,20 @@ df_reldiag <- df %>%
   ) %>%
   # set negative values to zero, target is standardized
   mutate(across(c(x_rc, lower, upper), ~ pmin(pmax(., 0), 1)))
-reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, fix_coord = FALSE, my_alpha = 0.04) +
+reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, my_alpha = 0.04) +
   facet_grid(quantile ~ model) +
   scale_x_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
   scale_y_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
-  theme(strip.background.x = element_blank(), strip.text.x = element_blank())
+  theme(strip.background.x = element_blank(), strip.text.x = element_blank()) +
+  coord_cartesian()
 
 
 # Construct murphy diagram ---------------------------------------------------------------------
 df <- murphydiag(filter(my_pred, quantile == QUANTILE), digits = DIGITS)
-murphy_diagram <- plot_murphy_diagram(df, aspect_ratio_1 = FALSE) +
+murphy_diagram <- plot_murphy_diagram(df) +
   scale_x_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
-  facet_wrap(~quantile, strip.position = "right")
+  facet_wrap(~quantile, strip.position = "right") +
+  theme(aspect.ratio = NULL)
 
 
 # Combine everything --------------------------------------------------------------------------
