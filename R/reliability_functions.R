@@ -102,17 +102,16 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
 plot_reldiag <- function(df_reldiag,
                          score_decomp = TRUE,
                          pval = TRUE,
-                         fix_coord = TRUE) {
+                         fix_coord = TRUE,
+                         my_alpha = 0.3) {
   if (score_decomp) {
-    p_ucmb <- if (pval) paste0(" [p = ", format(round(pval_ucond, digits = 2), nsmall = 2), "]") else ""
-    p_cmb <- if (pval) paste0(" [p = ", format(round(pval_cond, digits = 2), nsmall = 2), "]") else ""
     digits <- df_reldiag$digits[1]
     scores <- df_reldiag %>%
       distinct(across(score:pval_ucond)) %>%
       mutate(label = paste0(c("\nuMCB ", "cMCB ", "DSC ", "UNC "),
         format(round(c(umcb, cmcb, dsc, unc), digits = digits), nsmall = digits, trim = TRUE),
-        c(p_ucmb, "", "", ""),
-        c("", p_cmb, "", ""),
+        c(ifelse(pval, paste0(" [p = ", format(round(pval_ucond, digits = 2), nsmall = 2), "]"), ""), "", "", ""),
+        c("", ifelse(pval, paste0(" [p = ", format(round(pval_cond, digits = 2), nsmall = 2), "]"), ""), "", ""),
         collapse = " \n"
       ))
     score_layer <- list(
@@ -140,7 +139,7 @@ plot_reldiag <- function(df_reldiag,
 
   rel_diag <- ggplot(df_reldiag, aes(x, x_rc, group = model)) +
     # facet_grid(rows = vars(quantile), cols = vars(model)) +
-    geom_point(aes(x, y), alpha = 0.3, size = 0.1) +
+    geom_point(aes(x, y), alpha = my_alpha, size = 0.1) +
     geom_abline(intercept = 0, slope = 1, colour = "grey70") +
     geom_smooth(aes(ymin = lower, ymax = upper), linetype = 0, stat = "identity", fill = "skyblue3") +
     geom_line(aes(x, lower), color = "skyblue3", size = 0.35) +

@@ -92,8 +92,8 @@ df_reldiag <- df %>%
             .groups = "keep") %>%
   # set negative values to zero, target is standardized
   mutate(across(c(x_rc, lower, upper), ~ pmin(pmax(., 0), 1)))
-recal_and_bands <- plot_reliability(my_rel) +
-  facet_grid(model ~ quantile) +
+reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, fix_coord = FALSE, my_alpha = 0.04) +
+  facet_grid(quantile ~ model) +
   theme(strip.background.x = element_blank(), strip.text.x = element_blank())
 
 
