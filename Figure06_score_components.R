@@ -7,7 +7,6 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location != "US",
     quantile %in% c(0.25, 0.5, 0.75),
-    target == "1 wk ahead inc death",
     !model %in% c("USC-SI_kJalpha", "COVIDhub-4_week_ensemble", "COVIDhub_CDC-ensemble")
   )
 

@@ -7,10 +7,8 @@ HIGHLIGHT <- c(0.01, 0.05, 0.25, 0.50, 0.75, 0.95, 0.99)
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location == "US",
-    target == "1 wk ahead inc death",
     model %in% MODELS
-  ) %>%
-  mutate(value = floor(value))
+  )
 
 df1 <- df %>% 
   filter(quantile %in% HIGHLIGHT)
@@ -47,4 +45,4 @@ ggplot(df1, aes(x=target_end_date)) +
         legend.key = element_blank(),
         axis.text.x = element_text(hjust = -1.25))
 
-ggsave("figures/1_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf", dpi=500)
+# ggsave("figures/1_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf", dpi=500)

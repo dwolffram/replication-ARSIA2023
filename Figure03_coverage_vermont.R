@@ -7,10 +7,8 @@ set.seed(100)
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location_name == "Vermont",
-    target == "1 wk ahead inc death",
     model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
-  ) %>%
-  mutate(value = floor(value))
+  ) 
 
 # Upper plot with consistency bands
 coverage1 <- df %>%

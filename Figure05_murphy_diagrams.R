@@ -5,7 +5,6 @@ source("R/murphy_diagram_functions.R")
 df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location != "US",
-    target == "1 wk ahead inc death",
     model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline"),
     quantile %in% c(0.25, 0.5, 0.75)
   )
