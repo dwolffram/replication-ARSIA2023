@@ -1,4 +1,4 @@
-FROM rocker/rstudio
+FROM rocker/binder
 LABEL maintainer='Daniel Wolffram'
 COPY . ${HOME}
 RUN chown -R ${NB_USER} ${HOME}
