@@ -1,0 +1,25 @@
+Type: Compendium
+Package: replication-ARSIA2023
+Title: Replication Package for "Model Diagnostics and Forecast
+    Evaluation for Quantiles"
+Version: 0.0.1
+Authors@R: 
+    person("Daniel", "Wolffram", , "daniel.wolffram@kit.edu", role = c("aut", "cre"))
+Description: Replication package for "Model Diagnostics and Forecast
+    Evaluation for Quantiles"
+License: What license it uses
+Depends: 
+    geomtextpath,
+    ggplot2,
+    ggrepel,
+    gridExtra,
+    isotone,
+    jsonlite,
+    lubridate,
+    MMWRweek,
+    patchwork,
+    quantreg,
+    reshape2,
+    tidyverse
+Encoding: UTF-8
+LazyData: true
