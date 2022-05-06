@@ -1,6 +1,6 @@
 # Replication package for "Model Diagnostics and Forecast Evaluation for Quantiles"
 <!-- badges: start -->
-[![Launch Rstudio Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dwolffram/replication-ARSIA2023/master?urlpath=rstudio)
+[![Launch Rstudio Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dwolffram/replication-ARSIA2023/main?urlpath=rstudio)
 <!-- badges: end -->
 
 ## Contents
