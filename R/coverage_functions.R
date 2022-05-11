@@ -55,8 +55,8 @@ get_consistency_bands <- function(df) {
     group_by(across(group_vars(df))) %>%
     summarize(count = n(), .groups = "drop") %>%
     mutate(
-      get_consistency_interval(quantile, count, 0.9) / count,
-      get_consistency_interval(quantile, count, 0.5) / count
+      get_consistency_interval(qlevel, count, 0.9) / count,
+      get_consistency_interval(qlevel, count, 0.5) / count
     ) %>%
     select(-count)
 }
@@ -67,7 +67,8 @@ coverage <- function(df,
                      date_column = target_end_date,
                      B = 100) {
 
-  # avoid numerical artifacts by assuming that values with an absolute difference of less than eps are identical
+  # avoid numerical artifacts by assuming that values with
+  # an absolute difference of less than eps are identical
   eps <- 10^-10
 
   results <- df %>%
@@ -99,7 +100,8 @@ plot_coverage <- function(results) {
 
   # some customizations used in all plots
   my_theme <- list(
-    scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = function(x) ifelse(x == 0, "0", x)),
+    scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1),
+                       labels = function(x) ifelse(x == 0, "0", x)),
     scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y)),
     coord_fixed(),
     xlab("Quantile level"),
@@ -113,18 +115,24 @@ plot_coverage <- function(results) {
 
   if (band_type == "confidence") {
     bands_layer <- list(
-      geom_ribbon(data = results, aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkblue", alpha = 0.2),
-      geom_ribbon(data = results, aes(x = quantile, ymin = u_5, ymax = u_95), fill = "darkred", alpha = 0.2)
+      geom_ribbon(data = results, aes(x = qlevel, ymin = l_5, ymax = l_95),
+                  fill = "darkblue", alpha = 0.2),
+      geom_ribbon(data = results, aes(x = qlevel, ymin = u_5, ymax = u_95),
+                  fill = "darkred", alpha = 0.2)
     )
   } else if (band_type == "confidence2") {
     bands_layer <- list(
-      geom_ribbon(data = results, aes(x = quantile, ymin = l_25, ymax = l_75), fill = "darkred", alpha = 0.3),
-      geom_ribbon(data = results, aes(x = quantile, ymin = l_5, ymax = l_95), fill = "darkred", alpha = 0.2)
+      geom_ribbon(data = results, aes(x = qlevel, ymin = l_25, ymax = l_75),
+                  fill = "darkred", alpha = 0.3),
+      geom_ribbon(data = results, aes(x = qlevel, ymin = l_5, ymax = l_95),
+                  fill = "darkred", alpha = 0.2)
     )
   } else if (band_type == "consistency") {
     bands_layer <- list(
-      geom_ribbon(data = results, aes(x = quantile, ymin = lower50, ymax = upper50), fill = "skyblue3", alpha = 0.3),
-      geom_ribbon(data = results, aes(x = quantile, ymin = lower90, ymax = upper90), fill = "skyblue3", alpha = 0.2)
+      geom_ribbon(data = results, aes(x = qlevel, ymin = lower50, ymax = upper50),
+                  fill = "skyblue3", alpha = 0.3),
+      geom_ribbon(data = results, aes(x = qlevel, ymin = lower90, ymax = upper90),
+                  fill = "skyblue3", alpha = 0.2)
     )
   }
 
@@ -133,6 +141,6 @@ plot_coverage <- function(results) {
     {
       if (band_type != "none") bands_layer
     } +
-    geom_errorbar(aes(x = quantile, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
+    geom_errorbar(aes(x = qlevel, ymin = l, ymax = u), width = 0.0125, size = 0.3, colour = "black") +
     my_theme
 }

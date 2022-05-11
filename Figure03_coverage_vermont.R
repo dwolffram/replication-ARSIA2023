@@ -8,11 +8,12 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location_name == "Vermont",
     model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
-  ) 
+  ) %>%
+  rename(qlevel = quantile)
 
 # Upper plot with consistency bands
 coverage1 <- df %>%
-  group_by(model, quantile) %>%
+  group_by(model, qlevel) %>%
   coverage(band_type = "consistency")
 
 p1 <- plot_coverage(coverage1) +
@@ -28,7 +29,7 @@ p1 <- plot_coverage(coverage1) +
 
 # Lower plot with confidence bands for hard and soft coverage
 coverage2 <- df %>%
-  group_by(model, quantile) %>%
+  group_by(model, qlevel) %>%
   coverage(band_type = "confidence", B = 100)
 
 p2 <- plot_coverage(coverage2) +
@@ -43,4 +44,4 @@ p2 <- plot_coverage(coverage2) +
 
 p1 / p2
 
-# ggsave("figures/3_Vermont_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf", dpi = 300)
+# ggsave("figures/3_Vermont_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf")

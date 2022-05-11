@@ -1,5 +1,5 @@
 library(tidyverse)
-Sys.setlocale("LC_ALL", "C")
+#Sys.setlocale("LC_ALL", "C")
 
 MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 HIGHLIGHT <- c(0.01, 0.05, 0.25, 0.50, 0.75, 0.95, 0.99)
@@ -8,17 +8,18 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location == "US",
     model %in% MODELS
-  )
+  ) %>%
+  rename(qlevel = quantile)
 
 df1 <- df %>% 
-  filter(quantile %in% HIGHLIGHT)
+  filter(qlevel %in% HIGHLIGHT)
 
 df2 <- df %>%
-  filter(!quantile %in% HIGHLIGHT)
+  filter(!qlevel %in% HIGHLIGHT)
 
 df_box <- df %>%
-  filter(quantile %in% c(0.01, 0.5, 0.99)) %>% 
-  pivot_wider(names_from = quantile, names_prefix = "value.", values_from = value)
+  filter(qlevel %in% c(0.01, 0.5, 0.99)) %>% 
+  pivot_wider(names_from = qlevel, names_prefix = "value.", values_from = value)
 
 ggplot(df1, aes(x=target_end_date)) +
   facet_wrap("model", ncol = 1) +
@@ -45,4 +46,4 @@ ggplot(df1, aes(x=target_end_date)) +
         legend.key = element_blank(),
         axis.text.x = element_text(hjust = -1.25))
 
-# ggsave("figures/1_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf", dpi=500)
+# ggsave("figures/1_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf")
