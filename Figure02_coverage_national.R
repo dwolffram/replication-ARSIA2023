@@ -43,4 +43,4 @@ p2 <- plot_coverage(coverage2) +
 
 p1 / p2
 
-# ggsave("figures/2_national_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf")
+# ggsave("figures/02_national_coverage.pdf", width = 160, height = 110, unit = "mm", device = "pdf")

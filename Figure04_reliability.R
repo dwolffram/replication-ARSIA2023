@@ -20,4 +20,4 @@ plot_reldiag(df_reldiag) +
   facet_grid(quantile ~ model) +
   coord_fixed(ratio = 1, xlim = c(0, 17500), ylim = c(0, 17500))
 
-# ggsave("figures/4_national_reliability.pdf", width = 160, height = 160, unit = "mm", device = "pdf")
+# ggsave("figures/04_national_reliability.pdf", width = 160, height = 160, unit = "mm", device = "pdf")

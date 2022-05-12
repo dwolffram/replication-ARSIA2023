@@ -16,4 +16,4 @@ ggplot(data_ins_long) +
         panel.grid.minor = element_line(size = 0.05)) +
   theme(aspect.ratio = 1)
 
-# ggsave(filename = "figures/7_Engel_modelfit_insample.pdf",width = 160,height = 60,device = "pdf",units = "mm")
+# ggsave(filename = "figures/07_Engel_modelfit_insample.pdf",width = 160,height = 60,device = "pdf",units = "mm")

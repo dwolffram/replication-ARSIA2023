@@ -76,7 +76,7 @@ ggplot(data = scores) +
   ) +
   scale_color_brewer(palette = "Set1")
 
-# ggsave("figures/6_score_decomposition_states.pdf", width = 160, height = 70, unit = "mm", device = "pdf")
+# ggsave("figures/06_score_decomposition_states.pdf", width = 160, height = 70, unit = "mm", device = "pdf")
 
 ## more flexible isolines
 ## TODO: automatically fix overlapping labels if possible

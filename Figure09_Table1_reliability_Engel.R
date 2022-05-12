@@ -49,7 +49,7 @@ plot_reldiag(reldiag_Engel, score_decomp = FALSE) +
   scale_x_log10(guide = guide_axis(check.overlap = TRUE)) +
   scale_y_log10()
 
-# ggsave(filename = "figures/9_Engel_reliability.pdf", width = 160, height = 110, device = "pdf", units = "mm")
+# ggsave(filename = "figures/09_Engel_reliability.pdf", width = 160, height = 110, device = "pdf", units = "mm")
 
 # Table 1
 scores <- data_long %>%

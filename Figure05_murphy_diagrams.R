@@ -36,4 +36,4 @@ g <- p1 + p2 + p3
 
 g <- g + expand_limits(x = xmax, y = ymax)
 
-# ggsave("figures/5_states_murphy.pdf", plot = g, width = 160, height = 70, unit = "mm", device = "pdf")
+# ggsave("figures/05_states_murphy.pdf", plot = g, width = 160, height = 70, unit = "mm", device = "pdf")

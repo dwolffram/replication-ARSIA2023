@@ -45,4 +45,4 @@ ggplot(df1, aes(x=target_end_date)) +
         legend.key = element_blank(),
         axis.text.x = element_text(hjust = -1.25))
 
-# ggsave("figures/1_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf")
+# ggsave("figures/01_covid19_forecasts.pdf", width=160, height=200, unit="mm", device = "pdf")
