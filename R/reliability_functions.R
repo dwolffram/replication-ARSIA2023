@@ -1,12 +1,13 @@
 library(isotone)
 
 # Compute reliability diagram
-reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, region_level = 0.9,
-                    resample_log = FALSE, digits = 2) {
+reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99,
+                    region_level = 0.9, resample_log = FALSE, digits = 2) {
   pava <- function(x, y) {
     # In case of ties, isotone::gpava uses the conditional mean instead of quantile, try e.g.,
     # gpava(c(-1,-1,-1),c(-1,0,0),solver = weighted.median,ties = "secondary")
-    # New fix: Use ranking of predictor values and break ties by ordering the corresponding instances in order of decreasing observations
+    # New fix: Use ranking of predictor values and break ties by ordering the
+    # corresponding instances in order of decreasing observations
     ranking <- match(1:length(x), order(x, y, decreasing = c(FALSE, TRUE)))
     gpava(ranking, y, solver = weighted.fractile, p = alpha, ties = "secondary")$x
   }
@@ -23,7 +24,8 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
   res <- y - x
 
   s <- score(x, y)
-  c_rc_ucond <- optim(par = 0, fn = function(c) score(x + c, y), method = "Brent", lower = min(res), upper = max(res))$par
+  c_rc_ucond <- optim(par = 0, fn = function(c) score(x + c, y),
+                      method = "Brent", lower = min(res), upper = max(res))$par
   s_rc_ucond <- score(x + c_rc_ucond, y)
   s_rc <- score(x_rc, y)
   s_mg <- score(marg(y), y)
@@ -46,7 +48,8 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
 
   # Unconditional calibration test
   # Coverage test: One-sided Binomial tests with Bonferroni correction
-  eps <- 10^-10 # avoid numerical artifacts by assuming that values with an absolute difference of less than eps are identical
+  eps <- 10^-10 # avoid numerical artifacts by assuming that values with an
+                # absolute difference of less than eps are identical
   hard_cov <- sum(y < x - eps)
   soft_cov <- sum(y < x + eps)
 
@@ -69,7 +72,8 @@ reldiag <- function(x, y, alpha = 0.5, resampling = TRUE, n_resamples = 99, regi
     }
 
     x_rc_resamples <- apply(resamples, 2, function(y) pava(x, y))
-    x_rc_resamples_sorted <- apply(cbind(x_rc, x_rc_resamples), 1, sort) - marg(res) # includes observed values + bias corrected (shifted by mean residual)
+    x_rc_resamples_sorted <- apply(cbind(x_rc, x_rc_resamples), 1, sort) - marg(res)
+                             # includes observed values + bias corrected (shifted by mean residual)
 
     ran_x <- range(x)
 
@@ -104,23 +108,25 @@ plot_reldiag <- function(df_reldiag,
                          pval = TRUE,
                          my_alpha = 0.3) {
   if (score_decomp) {
-    digits <- df_reldiag$digits[1]
+    digits_f <- paste0("%.", df_reldiag$digits[1], "f")
     scores <- df_reldiag %>%
       distinct(across(score:pval_ucond)) %>%
-      mutate(label = paste0(c("\nuMCB ", "cMCB ", "DSC ", "UNC "),
-        format(round(c(umcb, cmcb, dsc, unc), digits = digits), nsmall = digits, trim = TRUE),
-        c(ifelse(pval, paste0(" [p = ", format(round(pval_ucond, digits = 2), nsmall = 2), "]"), ""), "", "", ""),
-        c("", ifelse(pval, paste0(" [p = ", format(round(pval_cond, digits = 2), nsmall = 2), "]"), ""), "", ""),
-        collapse = " \n"
+      mutate(label = paste0(
+        c("\nuMCB ", "cMCB ", "DSC ", "UNC "),
+        sprintf(digits_f, c(umcb, cmcb, dsc, unc)),
+        if (pval) c(sprintf(" [p = %.2f]", c(pval_ucond, pval_cond)), "", ""),
+        collapse = "\n"
       ))
     score_layer <- list(
       geom_label(
-        data = scores, mapping = aes(x = -Inf, y = Inf, label = sprintf(paste0("bar(S)~'%0.", digits, "f'"), score)),
-        size = 6 * 0.36, hjust = 0, vjust = 1, label.size = NA, alpha = 0, label.padding = unit(1, "lines"), parse = TRUE
+        aes(x = -Inf, y = Inf, label = sprintf("bar(S)~'%s'", sprintf(digits_f, score))),
+        data = scores, size = 6 * 0.36, hjust = 0, vjust = 1, label.size = NA,
+        alpha = 0, label.padding = unit(1, "lines"), parse = TRUE
       ),
       geom_label(
-        data = scores, mapping = aes(x = -Inf, y = Inf, label = label),
-        size = 6 * 0.36, hjust = 0, vjust = 1, label.size = NA, alpha = 0, label.padding = unit(1, "lines"), parse = FALSE
+        mapping = aes(x = -Inf, y = Inf, label = label),
+        data = scores, size = 6 * 0.36, hjust = 0, vjust = 1, label.size = NA,
+        alpha = 0, label.padding = unit(1, "lines"), parse = FALSE
       )
     )
   } else {
@@ -136,12 +142,11 @@ plot_reldiag <- function(df_reldiag,
     )
 
   ggplot(df_reldiag, aes(x, x_rc, group = model)) +
-    # facet_grid(rows = vars(quantile), cols = vars(model)) +
     geom_point(aes(x, y), alpha = my_alpha, size = 0.1) +
     geom_abline(intercept = 0, slope = 1, colour = "grey70") +
-    geom_smooth(aes(ymin = lower, ymax = upper), linetype = 0, stat = "identity", fill = "skyblue3") +
-    geom_line(aes(x, lower), color = "skyblue3", size = 0.35) +
-    geom_line(aes(x, upper), color = "skyblue3", size = 0.35) +
+    geom_ribbon(aes(ymin = lower, ymax = upper),
+                color = "skyblue3", size = 0.35,
+                fill = "skyblue3", alpha = 0.4) +
     geom_line(color = "firebrick3") +
     geom_blank(data = facet_lims, aes(x = mx, y = mx)) +
     geom_blank(data = facet_lims, aes(x = mn, y = mn)) +

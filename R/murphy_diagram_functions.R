@@ -16,12 +16,12 @@ get_thetas <- function(value, truth, n = 1001) {
   return(thetas)
 }
 
-get_elementary_scores <- function(truth, value, quantile, n) {
+get_elementary_scores <- function(truth, value, qlevel, n) {
   thetas <- get_thetas(value, truth, n)
 
   scores <- sapply(
     thetas,
-    function(t) mean(elementary_quantile_score(truth, value, t, quantile))
+    function(t) mean(elementary_quantile_score(truth, value, t, qlevel))
   )
 
   return(data.frame(theta = thetas, mean_score = scores))
@@ -33,8 +33,8 @@ quantile_score <- function(y_true, y_pred, alpha) {
 
 murphydiag <- function(data, digits = 1) {
   score_label <- data %>%
-    mutate(qs = quantile_score(truth, value, quantile)) %>%
-    group_by(model, quantile) %>%
+    mutate(qs = quantile_score(truth, value, qlevel)) %>%
+    group_by(model, qlevel) %>%
     summarize(
       mean_qs = mean(qs),
       label = paste0(unique(model), " (", format(round(mean_qs, digits = digits), nsmall = 1),
@@ -45,11 +45,11 @@ murphydiag <- function(data, digits = 1) {
     )
 
   df <- data %>%
-    group_by(model, quantile) %>%
-    summarize(get_elementary_scores(truth, value, quantile, n = 500), .groups = "drop")
+    group_by(model, qlevel) %>%
+    summarize(get_elementary_scores(truth, value, qlevel, n = 500), .groups = "drop")
 
   df <- df %>%
-    left_join(score_label, by = c("model", "quantile"))
+    left_join(score_label, by = c("model", "qlevel"))
 
   return(df)
 }
@@ -57,7 +57,7 @@ murphydiag <- function(data, digits = 1) {
 plot_murphy_diagram <- function(df) {
   ggplot(df) +
     geom_line(aes(x = theta, y = mean_score, color = label), size = 0.5) +
-    facet_wrap("quantile", scales = "free") +
+    facet_wrap("qlevel", scales = "free") +
     xlab(expression(paste("Threshold ", theta))) +
     ylab("Elementary score") +
     theme_bw(base_size = 11) +

@@ -1,5 +1,4 @@
 library(tidyverse)
-library(reshape2)
 library(quantreg)
 library(isotone)
 
@@ -32,91 +31,120 @@ predict.pava = function(model,new_z){
 }
 
 
-data(engel)
+data(engel, package = "quantreg")
 
-n = dim(engel)[1]
-q_levels = c(0.1, 0.25, 0.5, 0.75, 0.90)
-col_names = c("predictor","truth","model",q_levels)
-model_id = list(rq = "Linear",rqlog = "Log-linear",iso = "Isotonic")
-is = "In-sample"
+n <- nrow(engel)
+q_levels <- c(0.1, 0.25, 0.5, 0.75, 0.90)
+col_names <- c("predictor", "truth", "model", q_levels)
+model_id <- list(rq = "Linear", rqlog = "Log-linear", iso = "Isotonic")
+ins <- "In-sample"
 
 
 # In-sample
 # Linear quantile regression
-rq_engel = quantreg::rq(foodexp ~ income, tau = q_levels, data = engel)
-# summary(rq_engel)
-data_rq_is = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$rq, predict(rq_engel))
-names(data_rq_is) = col_names
-data_rq_is_long = melt(data_rq_is,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_rq_is_long)
-data_rq_is_long$quantile = as.numeric(as.character(data_rq_is_long$quantile))
+rq_engel <- quantreg::rq(foodexp ~ income, tau = q_levels, data = engel)
+data_rq_ins <- data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$rq,
+  predict(rq_engel)
+)
+names(data_rq_ins) <- col_names
+data_rq_ins_long <- pivot_longer(data = data_rq_ins, col = starts_with("0"),
+                                 names_to = "qlevel", 
+                                 names_transform = list(qlevel = as.numeric))
 
 # Linear quantile regression after log-transformation
-rqlog_engel = quantreg::rq(log(foodexp) ~ log(income), tau = q_levels, data = engel)
-# summary(rq_engel)
-data_rqlog_is = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$rqlog, exp(predict(rqlog_engel)))
-names(data_rqlog_is) = col_names
-data_rqlog_is_long = melt(data_rqlog_is,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_rqlog_is_long)
-data_rqlog_is_long$quantile = as.numeric(as.character(data_rqlog_is_long$quantile))
+rqlog_engel <- quantreg::rq(log(foodexp) ~ log(income), tau = q_levels, data = engel)
+data_rqlog_ins = data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$rqlog,
+  exp(predict(rqlog_engel))
+)
+names(data_rqlog_ins) <- col_names
+data_rqlog_ins_long <- pivot_longer(data = data_rqlog_ins, col = starts_with("0"),
+                                    names_to = "qlevel",
+                                    names_transform = list(qlevel = as.numeric))
 
 # Isotonic quantile regression
-data_iso_is = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$iso)
-for(alpha in q_levels){
-  data_iso_is[,dim(data_iso_is)[2]+1] = pava(engel$income,engel$foodexp,p = alpha)$x
+data_iso_ins = data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$iso
+)
+for (alpha in q_levels) {
+  data_iso_ins[, ncol(data_iso_ins) + 1] <- pava(engel$income, engel$foodexp, p = alpha)$x
 }
-names(data_iso_is) = col_names
-data_iso_is_long = melt(data_iso_is,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_iso_is_long)
-data_iso_is_long$quantile = as.numeric(as.character(data_iso_is_long$quantile))
+names(data_iso_ins) = col_names
+data_iso_ins_long <- pivot_longer(data = data_iso_ins, col = starts_with("0"),
+                                  names_to = "qlevel",
+                                  names_transform = list(qlevel = as.numeric))
 
-# IS evaluation data
-data_is_long = rbind(data_rq_is_long,data_rqlog_is_long,data_iso_is_long)
-data_is_long$model = factor(data_is_long$model,levels = model_id)
+# InS evaluation data
+data_ins_long <- rbind(data_rq_ins_long, data_rqlog_ins_long, data_iso_ins_long)
+data_ins_long$model <- factor(data_ins_long$model, levels = model_id)
 
 
 # Out-of-sample (leave-one-out cross-validation)
 # Linear quantile regression
-data_rq_os = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$rq)
-j = dim(data_rq_os)[2]+1:length(q_levels)
-for(i in 1:n){
-  rq_engel <- quantreg::rq(foodexp ~ income, tau = q_levels, data = engel[-i,])
-  data_rq_os[i,j] = predict(rq_engel,newdata = engel[i,])
+data_rq_oos <- data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$rq
+)
+j <- ncol(data_rq_oos) + 1:length(q_levels)
+for (i in 1:n) {
+  rq_engel <- quantreg::rq(foodexp ~ income, tau = q_levels, data = engel[-i, ])
+  data_rq_oos[i, j] <- predict(rq_engel,newdata = engel[i, ])
 }
-names(data_rq_os) = col_names
-data_rq_os_long = melt(data_rq_os,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_rq_os_long)
-data_rq_os_long$quantile = as.numeric(as.character(data_rq_os_long$quantile))
+names(data_rq_oos) <- col_names
+data_rq_oos_long <- pivot_longer(data = data_rq_oos, col = starts_with("0"),
+                                 names_to = "qlevel",
+                                 names_transform = list(qlevel = as.numeric))
 
 # Linear quantile regression after log-transformation
-data_rqlog_os = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$rqlog)
-j = dim(data_rqlog_os)[2]+1:length(q_levels)
-for(i in 1:n){
-  rqlog_engel <- quantreg::rq(log(foodexp) ~ log(income), tau = q_levels, data=engel[-i,])
-  data_rqlog_os[i,j] = exp(predict(rqlog_engel,newdata = engel[i,]))
+data_rqlog_oos <- data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$rqlog
+)
+j <- ncol(data_rqlog_oos) + 1:length(q_levels)
+for (i in 1:n) {
+  rqlog_engel <- quantreg::rq(log(foodexp) ~ log(income), tau = q_levels, data = engel[-i, ])
+  data_rqlog_oos[i, j] <- exp(predict(rqlog_engel, newdata = engel[i, ]))
 }
-names(data_rqlog_os) = col_names
-data_rqlog_os_long = melt(data_rqlog_os,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_rqlog_os_long)
-data_rqlog_os_long$quantile = as.numeric(as.character(data_rqlog_os_long$quantile))
+names(data_rqlog_oos) <- col_names
+data_rqlog_oos_long <- pivot_longer(data = data_rqlog_oos, col = starts_with("0"),
+                                    names_to = "qlevel",
+                                    names_transform = list(qlevel = as.numeric))
 
 # Isotonic quantile regression
-data_iso_os = data.frame(predictor = engel$income,truth = engel$foodexp,model = model_id$iso)
-for(alpha in q_levels){
-  j = dim(data_iso_os)[2]+1
-  for(i in 1:n){
-    model = pava(engel$income[-i],engel$foodexp[-i],p = alpha)
-    data_iso_os[i,j] = predict.pava(model,engel$income[i])
+data_iso_oos <- data.frame(
+  predictor = engel$income,
+  truth = engel$foodexp,
+  model = model_id$iso
+)
+for (alpha in q_levels) {
+  j <- ncol(data_iso_oos) + 1
+  for (i in 1:n) {
+    model <- pava(engel$income[-i], engel$foodexp[-i], p = alpha)
+    data_iso_oos[i, j] = predict.pava(model, engel$income[i])
   }
 }
-names(data_iso_os) = col_names
-data_iso_os_long = melt(data_iso_os,id.vars=col_names[1:3],variable.name = "quantile")
-# head(data_iso_os_long)
-data_iso_os_long$quantile = as.numeric(as.character(data_iso_os_long$quantile))
+names(data_iso_oos) <- col_names
+data_iso_oos_long <- pivot_longer(data = data_iso_oos, col = starts_with("0"),
+                                  names_to = "qlevel",
+                                  names_transform = list(qlevel = as.numeric))
 
 # OoS evaluation data
-data_os_long = rbind(data_rq_os_long,data_rqlog_os_long,data_iso_os_long)
-data_os_long$model = factor(data_os_long$model,levels = model_id)
+data_oos_long <- rbind(data_rq_oos_long, data_rqlog_oos_long, data_iso_oos_long)
+data_oos_long$model <- factor(data_oos_long$model, levels = model_id)
 
-data_long = rbind(cbind(data_is_long,type = is),cbind(data_os_long,type = "Out-of-sample"))
+data_long <- rbind(cbind(data_ins_long, type = ins),
+                   cbind(data_oos_long, type = "Out-of-sample"))
 
+rm(list = c(
+  "rq_engel", "rqlog_engel", "data_oos_long", "i", "j",
+  ls()[grepl("data_iso", ls()) | grepl("data_rq", ls()) |
+         grepl("data_rqlog", ls())]))
