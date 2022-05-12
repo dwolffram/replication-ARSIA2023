@@ -2,11 +2,11 @@ source("models_Engel.R")
 source("R/coverage_functions.R")
 
 coverage_Engel <- data_long %>%
-  group_by(model, type, qlevel) %>%
+  group_by(model, type, quantile) %>%
   coverage(band_type = "consistency") %>%
   mutate_at(
     vars("lower50", "upper50", "lower90", "upper90"),
-    list(~ ifelse(type == ins, qlevel, .))
+    list(~ ifelse(type == ins, quantile, .))
   )
 
 coverage_plot <- plot_coverage(coverage_Engel) +

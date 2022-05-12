@@ -7,8 +7,7 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
     location != "US",
     model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline"),
     quantile %in% c(0.25, 0.5, 0.75)
-  ) %>%
-  rename(qlevel = quantile)
+  )
 
 df$model <- str_replace(df$model, "KITmetricslab-select_ensemble", "KITmetricslab")
 
@@ -18,18 +17,18 @@ ymax <- max(df_murphy$mean_score)
 xmax <- max(df_murphy$theta)
 
 p1 <- df_murphy %>%
-  filter(qlevel == 0.25) %>%
+  filter(quantile == 0.25) %>%
   plot_murphy_diagram() +
   xlab(NULL) +
   scale_y_continuous(labels = function(y) ifelse(y == 0, "0", y))
 
 p2 <- df_murphy %>%
-  filter(qlevel == 0.5) %>%
+  filter(quantile == 0.5) %>%
   plot_murphy_diagram() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ylab(NULL)
 
 p3 <- df_murphy %>%
-  filter(qlevel == 0.75) %>%
+  filter(quantile == 0.75) %>%
   plot_murphy_diagram() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + xlab(NULL) + ylab(NULL)
 

@@ -4,10 +4,10 @@ source("models_Engel.R")
 ggplot(data_ins_long) +
   facet_grid(cols = vars(model)) +
   geom_point(aes(x = predictor, y = truth), 
-             data = subset(data_ins_long,qlevel == 0.5),
+             data = subset(data_ins_long, quantile == 0.5),
              alpha = 0.2, size = 0.6) +
-  geom_line(aes(x = predictor, y = value, group = factor(qlevel),
-                color = factor(qlevel, levels = sort(q_levels,decreasing = TRUE)))) +
+  geom_line(aes(x = predictor, y = value, group = factor(quantile),
+                color = factor(quantile, levels = sort(q_levels, decreasing = TRUE)))) +
   labs(color = "Level") +
   xlab("Household income") +
   ylab("Food expenditure") +

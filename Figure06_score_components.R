@@ -8,19 +8,18 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
     location != "US",
     quantile %in% c(0.25, 0.5, 0.75),
     !model %in% c("USC-SI_kJalpha", "COVIDhub-4_week_ensemble", "COVIDhub_CDC-ensemble")
-  ) %>%
-  rename(qlevel = quantile)
+  )
 
 # compute score decomposition
 results <- df %>%
-  group_by(model, qlevel) %>%
-  summarize(reldiag(value, truth, alpha = unique(qlevel), resampling = FALSE))
+  group_by(model, quantile) %>%
+  summarize(reldiag(value, truth, alpha = unique(quantile), resampling = FALSE))
 
 scores <- results %>%
-  group_by(qlevel, model) %>%
+  group_by(quantile, model) %>%
   distinct(across(score:pval_ucond))
 
-scores$qlevel <- as.factor(scores$qlevel)
+scores$quantile <- as.factor(scores$quantile)
 
 # shorten model names to save space
 scores$model <- ifelse(sapply(scores$model, grepl, pattern = "COVIDhub", USE.NAMES = FALSE),
@@ -31,7 +30,7 @@ scores$model <- fct_relevel(scores$model, "COVIDhub-baseline", "COVIDhub-ensembl
 
 # define isolines
 iso <- scores %>%
-  group_by(qlevel) %>%
+  group_by(quantile) %>%
   summarize(
     intercept = seq(ceiling(max(dsc)) + first(unc) %% 1 - ceiling(min(mcb)), # add decimal part of unc to ensure integer valued scores on isolines
       -(ceiling(max(mcb)) + first(unc) %% 1 - ceiling(min(mcb))),
@@ -48,7 +47,7 @@ iso <- scores %>%
 iso$label[c(1, 2, 6, 8, 21, 23, 41, 42, 44)] <- NA
 
 ggplot(data = scores) +
-  facet_wrap("qlevel", scales = "free", ncol = 3) +
+  facet_wrap("quantile", scales = "free", ncol = 3) +
   geom_abline(
     data = iso, aes(intercept = intercept, slope = slope), color = "lightgray", alpha = 0.5,
     size = 0.5

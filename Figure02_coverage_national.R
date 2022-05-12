@@ -8,12 +8,11 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location == "US",
     model %in% c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
-  ) %>%
-  rename(qlevel = quantile)
+  )
 
 # Upper plot with consistency bands
 coverage1 <- df %>%
-  group_by(model, qlevel) %>%
+  group_by(model, quantile) %>%
   coverage(band_type = "consistency")
 
 p1 <- plot_coverage(coverage1) +
@@ -29,7 +28,7 @@ p1 <- plot_coverage(coverage1) +
 
 # Lower plot with confidence bands at two levels
 coverage2 <- df %>%
-  group_by(model, qlevel) %>%
+  group_by(model, quantile) %>%
   coverage(band_type = "confidence2", B = 100)
 
 p2 <- plot_coverage(coverage2) +

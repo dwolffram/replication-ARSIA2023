@@ -12,8 +12,7 @@ QUANTILE <- 0.75
 N_RES_RELIABILITY <- 99
 DIGITS <- 3
 
-my_pred <- read_csv("data/GEFCom14_Wind_Forecasts.csv.gz") %>%
-  rename(qlevel = quantile)
+my_pred <- read_csv("data/GEFCom14_Wind_Forecasts.csv.gz")
 
 # Visualize forecasts ------------------------------------------------------------------------
 df <- filter(
@@ -25,22 +24,22 @@ zero_hour <- hour(df$target_end_date) == 0
 # pick 2nd and 6th date to display on x-axis (for the chosen 7 day period)
 my_dates <- unique(df$target_end_date[zero_hour])[c(2, 6)]
 
-median_and_truth <- filter(df, qlevel == 0.5)
+median_and_truth <- filter(df, quantile == 0.5)
 
 levels <- c(90, 80, 50, 20)
 abs_alpha <- setNames(1 - levels / 100, paste0(levels, "%"))
 # since we draw bands over each other we need to know what are the alpha differences
 rel_alpha <- abs_alpha - lag(abs_alpha, default = 0)
-lower_qlevels <- (100 - levels) / 2
-upper_qlevels <- 100 - lower_qlevels
+lower_quantiles <- (100 - levels) / 2
+upper_quantiles <- 100 - lower_quantiles
 
-df_lower <- filter(df, (100 * qlevel) %in% lower_qlevels) %>%
-  mutate(level = paste0((1 - qlevel * 2) * 100, "%")) %>%
+df_lower <- filter(df, (100 * quantile) %in% lower_quantiles) %>%
+  mutate(level = paste0((1 - quantile * 2) * 100, "%")) %>%
   rename(lower = value) %>%
   select(model, target_end_date, level, lower)
 
-df_upper <- filter(df, (100 * qlevel) %in% upper_qlevels) %>%
-  mutate(level = paste0((1 - (1 - qlevel) * 2) * 100, "%")) %>%
+df_upper <- filter(df, (100 * quantile) %in% upper_quantiles) %>%
+  mutate(level = paste0((1 - (1 - quantile) * 2) * 100, "%")) %>%
   rename(upper = value) %>%
   select(model, target_end_date, level, upper)
 
@@ -87,7 +86,7 @@ forecast_plot <- ggplot(mapping = aes(x = target_end_date)) +
 
 # Construct coverage plots ---------------------------------------------------------------------
 coverage_df <- my_pred %>%
-  group_by(model, qlevel) %>%
+  group_by(model, quantile) %>%
   coverage(band_type = "none")
 
 coverage_plot <- plot_coverage(coverage_df) +
@@ -102,9 +101,9 @@ coverage_plot <- plot_coverage(coverage_df) +
 
 
 # Construct reliability diagram ----------------------------------------------------------------
-df <- filter(my_pred, qlevel == QUANTILE)
+df <- filter(my_pred, quantile == QUANTILE)
 df_reldiag <- df %>%
-  group_by(model, qlevel) %>%
+  group_by(model, quantile) %>%
   summarize(
     reldiag(value, truth, alpha = QUANTILE, n_resamples = N_RES_RELIABILITY, digits = DIGITS),
     .groups = "keep"
@@ -112,7 +111,7 @@ df_reldiag <- df %>%
   # set negative values to zero, target is standardized
   mutate(across(c(x_rc, lower, upper), ~ pmin(pmax(., 0), 1)))
 reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, my_alpha = 0.04) +
-  facet_grid(qlevel ~ model) +
+  facet_grid(quantile ~ model) +
   scale_x_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
   scale_y_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
   theme(strip.background.x = element_blank(), strip.text.x = element_blank()) +
@@ -120,10 +119,10 @@ reliability_diagram <- plot_reldiag(df_reldiag, pval = FALSE, my_alpha = 0.04) +
 
 
 # Construct murphy diagram ---------------------------------------------------------------------
-df <- murphydiag(filter(my_pred, qlevel == QUANTILE), digits = DIGITS)
+df <- murphydiag(filter(my_pred, quantile == QUANTILE), digits = DIGITS)
 murphy_diagram <- plot_murphy_diagram(df) +
   scale_x_continuous(breaks = 0:4 / 4, labels = function(x) ifelse(x == 0, "0", x)) +
-  facet_wrap(~qlevel, strip.position = "right") +
+  facet_wrap(~quantile, strip.position = "right") +
   theme(aspect.ratio = NULL)
 
 

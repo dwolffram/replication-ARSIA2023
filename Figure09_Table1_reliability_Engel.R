@@ -5,12 +5,12 @@ set.seed(100)
 
 n_resamples <- 999
 digits <- 1
-qlevel <- 0.1
+quantile <- 0.1
 
 reldiag_Engel <- data_long %>%
-  filter(qlevel == !!qlevel) %>%
+  filter(quantile == !!quantile) %>%
   group_by(model, type) %>%
-  summarize(reldiag(value, truth, alpha = unique(qlevel), n_resamples = n_resamples,
+  summarize(reldiag(value, truth, alpha = unique(quantile), n_resamples = n_resamples,
                     resample_log = TRUE, digits = digits), .groups = "keep") %>%
   mutate(across(c(x_rc, lower, upper), ~ pmax(., 0))) %>%
   mutate_at(c("lower", "upper"), ~ replace(., model == model_id$iso && type == ins, x_rc))
@@ -53,14 +53,14 @@ plot_reldiag(reldiag_Engel, score_decomp = FALSE) +
 
 # Table 1
 scores <- data_long %>%
-  group_by(model, type, qlevel) %>%
-  summarize(reldiag(value, truth, alpha = unique(qlevel), resampling = FALSE, digits = digits)) %>%
-  distinct(across(c(model:qlevel, score:unc))) %>%
+  group_by(model, type, quantile) %>%
+  summarize(reldiag(value, truth, alpha = unique(quantile), resampling = FALSE, digits = digits)) %>%
+  distinct(across(c(model:quantile, score:unc))) %>%
   select(!mcb) %>%
   transmute(across(score:unc, round, digits))
 table <- pivot_longer(data = scores, cols = score:unc, names_to = "component") %>%
   pivot_wider(names_from = c(model, type)) %>%
-  select(c("qlevel", "component", "Linear_In-sample", "Log-linear_In-sample",
+  select(c("quantile", "component", "Linear_In-sample", "Log-linear_In-sample",
            "Isotonic_In-sample", "Linear_Out-of-sample",
            "Log-linear_Out-of-sample", "Isotonic_Out-of-sample"))
 

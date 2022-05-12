@@ -51,8 +51,8 @@ data_rq_ins <- data.frame(
 )
 names(data_rq_ins) <- col_names
 data_rq_ins_long <- pivot_longer(data = data_rq_ins, col = starts_with("0"),
-                                 names_to = "qlevel", 
-                                 names_transform = list(qlevel = as.numeric))
+                                 names_to = "quantile", 
+                                 names_transform = list(quantile = as.numeric))
 
 # Linear quantile regression after log-transformation
 rqlog_engel <- quantreg::rq(log(foodexp) ~ log(income), tau = q_levels, data = engel)
@@ -64,8 +64,8 @@ data_rqlog_ins = data.frame(
 )
 names(data_rqlog_ins) <- col_names
 data_rqlog_ins_long <- pivot_longer(data = data_rqlog_ins, col = starts_with("0"),
-                                    names_to = "qlevel",
-                                    names_transform = list(qlevel = as.numeric))
+                                    names_to = "quantile",
+                                    names_transform = list(quantile = as.numeric))
 
 # Isotonic quantile regression
 data_iso_ins = data.frame(
@@ -78,8 +78,8 @@ for (alpha in q_levels) {
 }
 names(data_iso_ins) = col_names
 data_iso_ins_long <- pivot_longer(data = data_iso_ins, col = starts_with("0"),
-                                  names_to = "qlevel",
-                                  names_transform = list(qlevel = as.numeric))
+                                  names_to = "quantile",
+                                  names_transform = list(quantile = as.numeric))
 
 # InS evaluation data
 data_ins_long <- rbind(data_rq_ins_long, data_rqlog_ins_long, data_iso_ins_long)
@@ -100,8 +100,8 @@ for (i in 1:n) {
 }
 names(data_rq_oos) <- col_names
 data_rq_oos_long <- pivot_longer(data = data_rq_oos, col = starts_with("0"),
-                                 names_to = "qlevel",
-                                 names_transform = list(qlevel = as.numeric))
+                                 names_to = "quantile",
+                                 names_transform = list(quantile = as.numeric))
 
 # Linear quantile regression after log-transformation
 data_rqlog_oos <- data.frame(
@@ -116,8 +116,8 @@ for (i in 1:n) {
 }
 names(data_rqlog_oos) <- col_names
 data_rqlog_oos_long <- pivot_longer(data = data_rqlog_oos, col = starts_with("0"),
-                                    names_to = "qlevel",
-                                    names_transform = list(qlevel = as.numeric))
+                                    names_to = "quantile",
+                                    names_transform = list(quantile = as.numeric))
 
 # Isotonic quantile regression
 data_iso_oos <- data.frame(
@@ -134,8 +134,8 @@ for (alpha in q_levels) {
 }
 names(data_iso_oos) <- col_names
 data_iso_oos_long <- pivot_longer(data = data_iso_oos, col = starts_with("0"),
-                                  names_to = "qlevel",
-                                  names_transform = list(qlevel = as.numeric))
+                                  names_to = "quantile",
+                                  names_transform = list(quantile = as.numeric))
 
 # OoS evaluation data
 data_oos_long <- rbind(data_rq_oos_long, data_rqlog_oos_long, data_iso_oos_long)

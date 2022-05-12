@@ -8,18 +8,17 @@ df <- read_csv("data/covid19-preprocessed.csv.gz", col_types = cols()) %>%
   filter(
     location == "US",
     model %in% MODELS
-  ) %>%
-  rename(qlevel = quantile)
+  )
 
 df1 <- df %>% 
-  filter(qlevel %in% HIGHLIGHT)
+  filter(quantile %in% HIGHLIGHT)
 
 df2 <- df %>%
-  filter(!qlevel %in% HIGHLIGHT)
+  filter(!quantile %in% HIGHLIGHT)
 
 df_box <- df %>%
-  filter(qlevel %in% c(0.01, 0.5, 0.99)) %>% 
-  pivot_wider(names_from = qlevel, names_prefix = "value.", values_from = value)
+  filter(quantile %in% c(0.01, 0.5, 0.99)) %>% 
+  pivot_wider(names_from = quantile, names_prefix = "value.", values_from = value)
 
 ggplot(df1, aes(x=target_end_date)) +
   facet_wrap("model", ncol = 1) +
