@@ -27,15 +27,17 @@ script `Figure09_Table1_reliability_Engel.R`.
 
 ### COVID-19 Forecast Hub
 
-The file "covid19_data_loading.R" collects the data (Cramer et al. 2021) required for the analysis from
-the GitHub Repository [reichlab/covid19-forecast-hub](https://github.com/reichlab/covid19-forecast-hub) of the COVID-19 Forecast Hub. This process is expected to
-complete within 20 minutes, and the result is provided in the `data/` folder.
+The file `covid19_data_loading.R` collects the data (Cramer et al. 2021) required for the analysis from the GitHub Repository [reichlab/covid19-forecast-hub](https://github.com/reichlab/covid19-forecast-hub) of the COVID-19 Forecast Hub.
+This process is expected to complete within 20 minutes, and the result is provided in the `data/` folder.
 
 ### Engel data on food expenditure
 
-The data set is loaded from the R package `quantreg` (Koenker 2022) on CRAN.
+The data set is loaded from the R package `quantreg` (Koenker 2022) available from CRAN.
 
 ### GEFCOM14
+
+The data on the wind power time series is available as Appendix A to (Hong et al. 2016).
+After processing and adding predictions from the 3 models described in the paper, the result is provided in the `data/` folder.
 
 ## Instructions & computational requirements.
 
@@ -60,5 +62,7 @@ The software versions that were used to run these analysis are
 
 Cramer EY, Huang Y, Wang Y, et al. 2021. The United States COVID-19 Forecast Hub
 dataset. _medRxiv_. URL: https://www.medrxiv.org/content/10.1101/2021.11.04.21265886v1
+
+Hong T, Pinson P, Fan S, Zareipour H, Troccoli A, Hyndman RJ. 2016. Probabilistic energy forecasting: Global Energy Forecasting Competition 2014 and beyond. _International Journal of Forecasting, 32(3):896--913. URL: https://doi.org/10.1016/j.ijforecast.2016.02.001
 
 Koenker R. 2022. quantreg: Quantile Regression. R package version 5.88. URL: https://CRAN.R-project.org/package=quantreg
