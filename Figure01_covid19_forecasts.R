@@ -1,5 +1,5 @@
 library(tidyverse)
-#Sys.setlocale("LC_ALL", "C")
+# Sys.setlocale("LC_ALL", "C")
 
 MODELS <- c("KITmetricslab-select_ensemble", "COVIDhub-ensemble", "COVIDhub-baseline")
 HIGHLIGHT <- c(0.01, 0.05, 0.25, 0.50, 0.75, 0.95, 0.99)
