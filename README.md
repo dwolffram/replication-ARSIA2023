@@ -10,7 +10,7 @@ Daniel Wolffram, Johannes Resin, Kristof Kraus, Alexander I. Jordan
 The code in this replication package generates the 10 figures and 1 table of a
 review paper on "Model Diagnostics and Forecast Evaluation for Quantiles" using R.
 Each figure is generated separately by its corresponding script file
-"Figure[xx]*.R". Replication is expected to complete within 1 minute for Figures 1--9,
+`Figure[xx]*.R`. Replication is expected to complete within 1 minute for Figures 1--9,
 and within 30 minutes for Figure 10.
 
 The main contents of the repository are the following:
@@ -41,7 +41,7 @@ After processing and adding predictions from the 3 models described in the paper
 
 ## Instructions & computational requirements.
 
-The analysis files `Figure*.R` can be run individually, in any order. Set the working
+The analysis files `Figure[xx]*.R` can be run individually, in any order. Set the working
 directory to the root of the replication package, or open the `.Rproj` file
 using RStudio.
 
