@@ -3,7 +3,7 @@
 [![Launch Rstudio Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dwolffram/replication-ARSIA2023/main?urlpath=rstudio)
 <!-- badges: end -->
 
-Daniel Wolffram, Johannes Resin, Kristof Kraus
+Daniel Wolffram, Johannes Resin, Kristof Kraus, Alexander I. Jordan
 
 ## Overview & contents
 
@@ -45,7 +45,7 @@ The analysis files `Figure*.R` can be run individually, in any order. Set the wo
 directory to the root of the replication package, or open the `.Rproj` file
 using RStudio.
 
-The software versions that were used to run these analysis are
+The software versions that were used to run these analyses are
 
 - R 4.1.3
   - `geomtextpath` (0.1.0)
@@ -54,9 +54,15 @@ The software versions that were used to run these analysis are
   - `isotone` (1.1-0)
   - `lubridate` (1.8.0)
   - `patchwork` (1.1.1)
-  - `quantreg` (5.88)
+  - `quantreg` (5.93)
   - `tidyverse` (1.3.1)
   - and for preprocessing data: `MMWRweek` (0.1.3), `jsonlite` (1.8.0)
+  
+For a convenient package setup in a (local) R session, use the `checkpoint` package with the command `checkpoint("2022-05-13")` (or source the file `checkpoint.R`) before running any of the analysis scripts.
+
+For a convenient remote setup, follow the `binder` link (https://mybinder.org/v2/gh/dwolffram/replication-ARSIA2023/main?urlpath=rstudio) for an interactive RStudio session in your Browser with access to the replication material.
+Depending on the caching status, the setup may take up to 15 minutes.
+At the present time (2022-05-13), Figure 10 cannot be reproduced on `binder` due to computational constraints (not enough RAM).
 
 ## References
 
